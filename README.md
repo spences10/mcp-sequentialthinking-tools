@@ -7,6 +7,10 @@ break down complex problems into manageable steps and provides
 recommendations for which MCP tools would be most effective at each
 stage.
 
+<a href="https://glama.ai/mcp/servers/zl990kfusy">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/zl990kfusy/badge" />
+</a>
+
 A Model Context Protocol (MCP) server that combines sequential
 thinking with intelligent tool suggestions. For each step in the
 problem-solving process, it provides confidence-scored recommendations
