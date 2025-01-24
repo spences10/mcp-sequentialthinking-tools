@@ -2,13 +2,16 @@
 
 An adaptation of the
 [MCP Sequential Thinking Server](https://github.com/modelcontextprotocol/servers/blob/main/src/sequentialthinking/index.ts)
-modified to work with MCP tools. This server maintains the core sequential thinking capabilities
-while being restructured to better integrate with the MCP tools ecosystem.
+designed to guide tool usage in problem-solving. This server helps
+break down complex problems into manageable steps and provides
+recommendations for which MCP tools would be most effective at each
+stage.
 
-A Model Context Protocol (MCP) server that enables structured, sequential
-thinking through a flexible thought process. It helps break down complex
-problems into manageable steps while maintaining context and allowing for
-revisions and branching paths.
+A Model Context Protocol (MCP) server that combines sequential
+thinking with intelligent tool suggestions. For each step in the
+problem-solving process, it provides confidence-scored recommendations
+for which tools to use, along with rationale for why each tool would
+be appropriate.
 
 ## Features
 
@@ -16,12 +19,70 @@ revisions and branching paths.
   thoughts
 - 🔄 Flexible thinking process that adapts and evolves
 - 🌳 Support for branching and revision of thoughts
+- 🛠️ Intelligent tool recommendations for each step
+- 📊 Confidence scoring for tool suggestions
+- 🔍 Detailed rationale for tool recommendations
 - 📝 Step tracking with expected outcomes
 - 🔄 Progress monitoring with previous and remaining steps
-- 💭 Thought history tracking
-- 🌿 Branch management for exploring alternatives
-- ↩️ Revision support for updating previous thoughts
-- 🎯 Step-by-step problem breakdown
+- 🎯 Alternative tool suggestions for each step
+
+## How It Works
+
+This server analyses each step of your thought process and recommends
+appropriate MCP tools to help accomplish the task. Each recommendation
+includes:
+
+- A confidence score (0-1) indicating how well the tool matches the
+  current need
+- A clear rationale explaining why the tool would be helpful
+- A priority level to suggest tool execution order
+- Alternative tools that could also be used
+
+The server works with any MCP tools available in your environment. It
+provides recommendations based on the current step's requirements, but
+the actual tool execution is handled by the consumer (like Claude).
+
+## Example Usage
+
+Here's an example of how the server guides tool usage:
+
+```json
+{
+	"thought": "Initial research step to understand what universal reactivity means in Svelte 5",
+	"current_step": {
+		"step_description": "Gather initial information about Svelte 5's universal reactivity",
+		"expected_outcome": "Clear understanding of universal reactivity concept",
+		"recommended_tools": [
+			{
+				"tool_name": "search_docs",
+				"confidence": 0.9,
+				"rationale": "Search Svelte documentation for official information",
+				"priority": 1
+			},
+			{
+				"tool_name": "tavily_search",
+				"confidence": 0.8,
+				"rationale": "Get additional context from reliable sources",
+				"priority": 2
+			}
+		],
+		"next_step_conditions": [
+			"Verify information accuracy",
+			"Look for implementation details"
+		]
+	},
+	"thought_number": 1,
+	"total_thoughts": 5,
+	"next_thought_needed": true
+}
+```
+
+The server tracks your progress and supports:
+
+- Creating branches to explore different approaches
+- Revising previous thoughts with new information
+- Maintaining context across multiple steps
+- Suggesting next steps based on current findings
 
 ## Configuration
 
@@ -69,7 +130,7 @@ The server implements a single MCP tool with configurable parameters:
 ### sequentialthinking_tools
 
 A tool for dynamic and reflective problem-solving through thoughts,
-supporting branching and revision of ideas.
+with intelligent tool recommendations.
 
 Parameters:
 
@@ -88,12 +149,13 @@ Parameters:
 - `branch_id` (string, optional): Branch identifier
 - `needs_more_thoughts` (boolean, optional): If more thoughts are
   needed
-- `current_step` (object, optional): Current step details with:
+- `current_step` (object, optional): Current step recommendation with:
   - `step_description`: What needs to be done
-  - `recommended_tools`: Array of tool recommendations
+  - `recommended_tools`: Array of tool recommendations with confidence
+    scores
   - `expected_outcome`: What to expect from this step
   - `next_step_conditions`: Conditions for next step
-- `previous_steps` (array, optional): Steps already taken
+- `previous_steps` (array, optional): Steps already recommended
 - `remaining_steps` (array, optional): High-level descriptions of
   upcoming steps
 
