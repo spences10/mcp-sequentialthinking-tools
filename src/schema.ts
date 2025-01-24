@@ -4,6 +4,8 @@ const TOOL_DESCRIPTION = `A detailed tool for dynamic and reflective problem-sol
 This tool helps analyze problems through a flexible thinking process that can adapt and evolve.
 Each thought can build on, question, or revise previous insights as understanding deepens.
 
+IMPORTANT: When initializing this tool, you must pass all available tools that you want the sequential thinking process to be able to use. The tool will analyze these tools and provide recommendations for their use.
+
 When to use this tool:
 - Breaking down complex problems into steps
 - Planning and design with room for revision
@@ -12,7 +14,7 @@ When to use this tool:
 - Problems that require a multi-step solution
 - Tasks that need to maintain context over multiple steps
 - Situations where irrelevant information needs to be filtered out
-- When tool execution needs to be integrated into the thinking process
+- When you need guidance on which tools to use and in what order
 
 Key features:
 - You can adjust total_thoughts up or down as you progress
@@ -22,10 +24,10 @@ Key features:
 - Not every thought needs to build linearly - you can branch or backtrack
 - Generates a solution hypothesis
 - Verifies the hypothesis based on the Chain of Thought steps
-- Repeats the process until satisfied
-- Provides a correct answer
-- Can evaluate and execute tools as part of the thinking process
-- Tracks tool execution results and integrates them into thoughts
+- Recommends appropriate tools for each step
+- Provides rationale for tool recommendations
+- Suggests tool execution order and parameters
+- Tracks previous recommendations and remaining steps
 
 Parameters explained:
 - thought: Your current thinking step, which can include:
@@ -36,8 +38,7 @@ Parameters explained:
 * Changes in approach
 * Hypothesis generation
 * Hypothesis verification
-* Tool consideration and selection
-* Tool execution results analysis
+* Tool recommendations and rationale
 - next_thought_needed: True if you need more thinking, even if at what seemed like the end
 - thought_number: Current number in sequence (can go beyond initial total if needed)
 - total_thoughts: Current estimate of thoughts needed (can be adjusted up/down)
@@ -46,12 +47,13 @@ Parameters explained:
 - branch_from_thought: If branching, which thought number is the branching point
 - branch_id: Identifier for the current branch (if any)
 - needs_more_thoughts: If reaching end but realizing more thoughts needed
-- tools_considered: Array of tools evaluated for this thought, including:
-* tool_name: Name of the tool being considered
-* confidence: 0-1 score indicating how appropriate the tool is
-* rationale: Why this tool was selected
-* priority: Order of execution when multiple tools are selected
-- selected_tools: Names of tools chosen for execution in this thought
+- current_step: Current step recommendation, including:
+* step_description: What needs to be done
+* recommended_tools: Tools recommended for this step
+* expected_outcome: What to expect from this step
+* next_step_conditions: Conditions to consider for the next step
+- previous_steps: Steps already recommended
+- remaining_steps: High-level descriptions of upcoming steps
 
 You should:
 1. Start with an initial estimate of needed thoughts, but be ready to adjust
@@ -62,16 +64,16 @@ You should:
 6. Ignore information that is irrelevant to the current step
 7. Generate a solution hypothesis when appropriate
 8. Verify the hypothesis based on the Chain of Thought steps
-9. Consider available tools that could help with the current thought
-10. Evaluate tools based on their appropriateness and priority
-11. Execute selected tools and analyze their results
-12. Integrate tool execution results into your thinking process
-13. Repeat the process until satisfied with the solution
+9. Consider available tools that could help with the current step
+10. Provide clear rationale for tool recommendations
+11. Suggest specific tool parameters when appropriate
+12. Consider alternative tools for each step
+13. Track progress through the recommended steps
 14. Provide a single, ideally correct answer as the final output
 15. Only set next_thought_needed to false when truly done and a satisfactory answer is reached`;
 
 export const SEQUENTIAL_THINKING_TOOL: Tool = {
-	name: 'sequentialthinking',
+	name: 'sequentialthinking_tools',
 	description: TOOL_DESCRIPTION,
 	inputSchema: {
 		type: 'object',
@@ -116,38 +118,137 @@ export const SEQUENTIAL_THINKING_TOOL: Tool = {
 				type: 'boolean',
 				description: 'If more thoughts are needed',
 			},
-			tools_considered: {
+			current_step: {
+				type: 'object',
+				description: 'Current step recommendation',
+				properties: {
+					step_description: {
+						type: 'string',
+						description: 'What needs to be done'
+					},
+					recommended_tools: {
+						type: 'array',
+						description: 'Tools recommended for this step',
+						items: {
+							type: 'object',
+							properties: {
+								tool_name: {
+									type: 'string',
+									description: 'Name of the tool being recommended'
+								},
+								confidence: {
+									type: 'number',
+									description: '0-1 indicating confidence in recommendation',
+									minimum: 0,
+									maximum: 1
+								},
+								rationale: {
+									type: 'string',
+									description: 'Why this tool is recommended'
+								},
+								priority: {
+									type: 'number',
+									description: 'Order in the recommendation sequence'
+								},
+								suggested_inputs: {
+									type: 'object',
+									description: 'Optional suggested parameters'
+								},
+								alternatives: {
+									type: 'array',
+									description: 'Alternative tools that could be used',
+									items: {
+										type: 'string'
+									}
+								}
+							},
+							required: ['tool_name', 'confidence', 'rationale', 'priority']
+						}
+					},
+					expected_outcome: {
+						type: 'string',
+						description: 'What to expect from this step'
+					},
+					next_step_conditions: {
+						type: 'array',
+						description: 'Conditions to consider for the next step',
+						items: {
+							type: 'string'
+						}
+					}
+				},
+				required: ['step_description', 'recommended_tools', 'expected_outcome']
+			},
+			previous_steps: {
 				type: 'array',
-				description: 'Tools evaluated for this thought',
+				description: 'Steps already recommended',
 				items: {
 					type: 'object',
 					properties: {
-						tool_name: { 
+						step_description: {
 							type: 'string',
-							description: 'Name of the tool being considered'
+							description: 'What needs to be done'
 						},
-						confidence: { 
-							type: 'number',
-							description: '0-1 indicating confidence in tool appropriateness',
-							minimum: 0,
-							maximum: 1
+						recommended_tools: {
+							type: 'array',
+							description: 'Tools recommended for this step',
+							items: {
+								type: 'object',
+								properties: {
+									tool_name: {
+										type: 'string',
+										description: 'Name of the tool being recommended'
+									},
+									confidence: {
+										type: 'number',
+										description: '0-1 indicating confidence in recommendation',
+										minimum: 0,
+										maximum: 1
+									},
+									rationale: {
+										type: 'string',
+										description: 'Why this tool is recommended'
+									},
+									priority: {
+										type: 'number',
+										description: 'Order in the recommendation sequence'
+									},
+									suggested_inputs: {
+										type: 'object',
+										description: 'Optional suggested parameters'
+									},
+									alternatives: {
+										type: 'array',
+										description: 'Alternative tools that could be used',
+										items: {
+											type: 'string'
+										}
+									}
+								},
+								required: ['tool_name', 'confidence', 'rationale', 'priority']
+							}
 						},
-						rationale: { 
+						expected_outcome: {
 							type: 'string',
-							description: 'Why this tool was selected'
+							description: 'What to expect from this step'
 						},
-						priority: { 
-							type: 'number',
-							description: 'Order of execution when multiple tools are selected'
+						next_step_conditions: {
+							type: 'array',
+							description: 'Conditions to consider for the next step',
+							items: {
+								type: 'string'
+							}
 						}
 					},
-					required: ['tool_name', 'confidence', 'rationale', 'priority']
+					required: ['step_description', 'recommended_tools', 'expected_outcome']
 				}
 			},
-			selected_tools: {
+			remaining_steps: {
 				type: 'array',
-				description: 'Names of tools chosen for execution',
-				items: { type: 'string' }
+				description: 'High-level descriptions of upcoming steps',
+				items: {
+					type: 'string'
+				}
 			}
 		},
 		required: [

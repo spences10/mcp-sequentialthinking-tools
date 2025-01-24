@@ -7,17 +7,15 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
 	CallToolRequestSchema,
-	ErrorCode,
 	ListToolsRequestSchema,
-	McpError,
 	Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import chalk from 'chalk';
-import { ThoughtData, ToolSelection, ToolUsage } from './types.js';
 import { SEQUENTIAL_THINKING_TOOL } from './schema.js';
+import { ThoughtData, ToolRecommendation, StepRecommendation } from './types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -26,7 +24,7 @@ const pkg = JSON.parse(
 );
 const { name, version } = pkg;
 
-// Create MCP server instance
+// Create MCP server instance with tools capability
 const server = new Server(
 	{
 		name,
@@ -39,13 +37,41 @@ const server = new Server(
 	},
 );
 
+interface ServerOptions {
+	available_tools?: Tool[];
+}
+
 class ToolAwareSequentialThinkingServer {
 	private thought_history: ThoughtData[] = [];
 	private branches: Record<string, ThoughtData[]> = {};
 	private available_tools: Map<string, Tool> = new Map();
 
-	constructor(tools: Tool[]) {
-		tools.forEach(tool => this.available_tools.set(tool.name, tool));
+	public getAvailableTools(): Tool[] {
+		return Array.from(this.available_tools.values());
+	}
+
+	constructor(options: ServerOptions = {}) {
+		// Always include the sequential thinking tool
+		const tools = [
+			SEQUENTIAL_THINKING_TOOL,
+			...(options.available_tools || []),
+		];
+
+		// Initialize with provided tools
+		tools.forEach((tool) => {
+			if (this.available_tools.has(tool.name)) {
+				console.error(
+					`Warning: Duplicate tool name '${tool.name}' - using first occurrence`,
+				);
+				return;
+			}
+			this.available_tools.set(tool.name, tool);
+		});
+
+		console.error(
+			'Available tools:',
+			Array.from(this.available_tools.keys()),
+		);
 	}
 
 	private validateThoughtData(input: unknown): ThoughtData {
@@ -67,7 +93,9 @@ class ToolAwareSequentialThinkingServer {
 			throw new Error('Invalid total_thoughts: must be a number');
 		}
 		if (typeof data.next_thought_needed !== 'boolean') {
-			throw new Error('Invalid next_thought_needed: must be a boolean');
+			throw new Error(
+				'Invalid next_thought_needed: must be a boolean',
+			);
 		}
 
 		const validated: ThoughtData = {
@@ -77,58 +105,59 @@ class ToolAwareSequentialThinkingServer {
 			next_thought_needed: data.next_thought_needed,
 			is_revision: data.is_revision as boolean | undefined,
 			revises_thought: data.revises_thought as number | undefined,
-			branch_from_thought: data.branch_from_thought as number | undefined,
+			branch_from_thought: data.branch_from_thought as
+				| number
+				| undefined,
 			branch_id: data.branch_id as string | undefined,
-			needs_more_thoughts: data.needs_more_thoughts as boolean | undefined,
+			needs_more_thoughts: data.needs_more_thoughts as
+				| boolean
+				| undefined,
 		};
 
-		// Validate tool-related fields if present
-		if (data.tools_considered) {
-			if (!Array.isArray(data.tools_considered)) {
-				throw new Error('tools_considered must be an array');
-			}
-			validated.tools_considered = data.tools_considered as ToolSelection[];
+		// Validate recommendation-related fields if present
+		if (data.current_step) {
+			validated.current_step = data.current_step as StepRecommendation;
 		}
 
-		if (data.selected_tools) {
-			if (!Array.isArray(data.selected_tools)) {
-				throw new Error('selected_tools must be an array');
+		if (data.previous_steps) {
+			if (!Array.isArray(data.previous_steps)) {
+				throw new Error('previous_steps must be an array');
 			}
-			validated.selected_tools = data.selected_tools as string[];
+			validated.previous_steps = data.previous_steps as StepRecommendation[];
+		}
+
+		if (data.remaining_steps) {
+			if (!Array.isArray(data.remaining_steps)) {
+				throw new Error('remaining_steps must be an array');
+			}
+			validated.remaining_steps = data.remaining_steps as string[];
 		}
 
 		return validated;
 	}
 
-	private async execute_tools(tools: string[], inputs: Record<string, unknown>): Promise<ToolUsage[]> {
-		return Promise.all(tools.map(async tool_name => {
-			const start_time = Date.now();
-			try {
-				const tool = this.available_tools.get(tool_name);
-				if (!tool) {
-					throw new Error(`Tool ${tool_name} not found`);
-				}
+	private formatRecommendation(step: StepRecommendation): string {
+		const tools = step.recommended_tools
+			.map((tool) => {
+				const alternatives = tool.alternatives?.length 
+					? ` (alternatives: ${tool.alternatives.join(', ')})`
+					: '';
+				const inputs = tool.suggested_inputs 
+					? `\n    Suggested inputs: ${JSON.stringify(tool.suggested_inputs)}`
+					: '';
+				return `  - ${tool.tool_name} (priority: ${tool.priority})${alternatives}
+    Rationale: ${tool.rationale}${inputs}`;
+			})
+			.join('\n');
 
-				// Execute tool and get results
-				const results = await this.execute_tool(tool, inputs);
-
-				return {
-					tool_name,
-					inputs,
-					status: 'success',
-					results,
-					execution_time: Date.now() - start_time
-				};
-			} catch (error) {
-				return {
-					tool_name,
-					inputs,
-					status: 'error',
-					error: error instanceof Error ? error.message : String(error),
-					execution_time: Date.now() - start_time
-				};
-			}
-		}));
+		return `Step: ${step.step_description}
+Recommended Tools:
+${tools}
+Expected Outcome: ${step.expected_outcome}${
+			step.next_step_conditions
+				? `\nConditions for next step:\n  - ${step.next_step_conditions.join('\n  - ')}`
+				: ''
+		}`;
 	}
 
 	private formatThought(thoughtData: ThoughtData): string {
@@ -140,7 +169,7 @@ class ToolAwareSequentialThinkingServer {
 			revises_thought,
 			branch_from_thought,
 			branch_id,
-			tool_executions
+			current_step,
 		} = thoughtData;
 
 		let prefix = '';
@@ -160,14 +189,9 @@ class ToolAwareSequentialThinkingServer {
 		const header = `${prefix} ${thought_number}/${total_thoughts}${context}`;
 		let content = thought;
 
-		// Add tool execution information if present
-		if (tool_executions?.length) {
-			const tool_info = tool_executions.map(execution => {
-				const status = execution.status === 'success' ? '✅' : '❌';
-				const time = execution.execution_time ? ` (${execution.execution_time}ms)` : '';
-				return `${status} ${execution.tool_name}${time}${execution.error ? `: ${execution.error}` : ''}`;
-			}).join('\n');
-			content = `${thought}\n\nTools Used:\n${tool_info}`;
+		// Add recommendation information if present
+		if (current_step) {
+			content = `${thought}\n\nRecommendation:\n${this.formatRecommendation(current_step)}`;
 		}
 
 		const border = '─'.repeat(
@@ -195,17 +219,12 @@ class ToolAwareSequentialThinkingServer {
 				validatedInput.total_thoughts = validatedInput.thought_number;
 			}
 
-			// Execute selected tools if any
-			if (validatedInput.selected_tools?.length) {
-				validatedInput.tool_executions = await this.execute_tools(
-					validatedInput.selected_tools,
-					{ thought: validatedInput.thought }
-				);
-				
-				// Process tool results into outputs
-				validatedInput.tool_outputs = validatedInput.tool_executions
-					.filter(execution => execution.status === 'success')
-					.map(execution => JSON.stringify(execution.results));
+			// Store the current step in thought history
+			if (validatedInput.current_step) {
+				if (!validatedInput.previous_steps) {
+					validatedInput.previous_steps = [];
+				}
+				validatedInput.previous_steps.push(validatedInput.current_step);
 			}
 
 			this.thought_history.push(validatedInput);
@@ -231,11 +250,13 @@ class ToolAwareSequentialThinkingServer {
 							{
 								thought_number: validatedInput.thought_number,
 								total_thoughts: validatedInput.total_thoughts,
-								next_thought_needed: validatedInput.next_thought_needed,
+								next_thought_needed:
+									validatedInput.next_thought_needed,
 								branches: Object.keys(this.branches),
 								thought_history_length: this.thought_history.length,
-								tool_executions: validatedInput.tool_executions,
-								tool_outputs: validatedInput.tool_outputs
+								current_step: validatedInput.current_step,
+								previous_steps: validatedInput.previous_steps,
+								remaining_steps: validatedInput.remaining_steps,
 							},
 							null,
 							2,
@@ -266,7 +287,10 @@ class ToolAwareSequentialThinkingServer {
 		}
 	}
 
-	private async execute_tool(tool: Tool, inputs: Record<string, unknown>): Promise<unknown> {
+	private async execute_tool(
+		tool: Tool,
+		inputs: Record<string, unknown>,
+	): Promise<unknown> {
 		try {
 			// Call the tool through the server's request method
 			const response = await server.request(
@@ -274,14 +298,18 @@ class ToolAwareSequentialThinkingServer {
 					method: 'callTool',
 					params: {
 						name: tool.name,
-						arguments: inputs
-					}
+						arguments: inputs,
+					},
 				},
-				CallToolRequestSchema
+				CallToolRequestSchema,
 			);
-			
+
 			// Extract the result from the response
-			if ('content' in response && Array.isArray(response.content) && response.content.length > 0) {
+			if (
+				'content' in response &&
+				Array.isArray(response.content) &&
+				response.content.length > 0
+			) {
 				const content = response.content[0];
 				if ('text' in content && typeof content.text === 'string') {
 					try {
@@ -293,27 +321,29 @@ class ToolAwareSequentialThinkingServer {
 					}
 				}
 			}
-			
+
 			throw new Error('Tool execution returned no content');
 		} catch (error) {
 			throw new Error(
 				`Failed to execute tool ${tool.name}: ${
 					error instanceof Error ? error.message : String(error)
-				}`
+				}`,
 			);
 		}
 	}
 }
 
+const thinkingServer = new ToolAwareSequentialThinkingServer({
+	available_tools: [],
+});
 
-const thinkingServer = new ToolAwareSequentialThinkingServer([SEQUENTIAL_THINKING_TOOL]);
-
+// Expose all available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-	tools: [SEQUENTIAL_THINKING_TOOL],
+	tools: thinkingServer.getAvailableTools(),
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
-	if (request.params.name === 'sequentialthinking') {
+	if (request.params.name === 'sequentialthinking_tools') {
 		return thinkingServer.processThought(request.params.arguments);
 	}
 
