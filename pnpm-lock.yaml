@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@modelcontextprotocol/sdk':
-        specifier: 1.4.1
-        version: 1.4.1
+        specifier: 1.5.0
+        version: 1.5.0
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -92,8 +92,8 @@ packages:
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
 
-  '@modelcontextprotocol/sdk@1.4.1':
-    resolution: {integrity: sha512-wS6YC4lkUZ9QpP+/7NBTlVNiEvsnyl0xF7rRusLF+RsG0xDPc/zWR7fEEyhKnnNutGsDAZh59l/AeoWGwIb1+g==}
+  '@modelcontextprotocol/sdk@1.5.0':
+    resolution: {integrity: sha512-IJ+5iVVs8FCumIHxWqpwgkwOzyhtHVKy45s6Ug7Dv0MfRpaYisH8QQ87rIWeWdOzlk8sfhitZ7HCyQZk7d6b8w==}
     engines: {node: '>=18'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -638,7 +638,7 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@modelcontextprotocol/sdk@1.4.1':
+  '@modelcontextprotocol/sdk@1.5.0':
     dependencies:
       content-type: 1.0.5
       eventsource: 3.0.2
