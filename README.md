@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/spences10-mcp-sequentialthinking-tools-badge.png)](https://mseep.ai/app/spences10-mcp-sequentialthinking-tools)
+
 # mcp-sequentialthinking-tools
 
 An adaptation of the
