@@ -52,12 +52,12 @@
 	},
 	"homepage": "https://github.com/spences10/mcp-sequentialthinking-tools#readme",
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "1.11.0",
+		"@modelcontextprotocol/sdk": "1.11.5",
 		"chalk": "^5.4.1"
 	},
 	"devDependencies": {
-		"@changesets/cli": "^2.29.3",
-		"@types/node": "^22.15.14",
+		"@changesets/cli": "^2.29.4",
+		"@types/node": "^22.15.21",
 		"typescript": "^5.8.3"
 	}
 }
