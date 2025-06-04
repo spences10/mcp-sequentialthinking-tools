@@ -1,6 +1,6 @@
 # mcp-sequentialthinking-tools
 
-For a much more capable version of this tool see [sequential-thinking-claude-code](https://github.com/MattMagg/sequential-thinking-claude-code)
+For a much more capable version of this tool, see [sequential-thinking-claude-code](https://github.com/MattMagg/sequential-thinking-claude-code)
 
 An adaptation of the
 [MCP Sequential Thinking Server](https://github.com/modelcontextprotocol/servers/blob/main/src/sequentialthinking/index.ts)
