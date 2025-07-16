@@ -23,28 +23,33 @@ be appropriate.
   thoughts
 - 🔄 Flexible thinking process that adapts and evolves
 - 🌳 Support for branching and revision of thoughts
-- 🛠️ Intelligent tool recommendations for each step
+- 🛠️ LLM-driven intelligent tool recommendations for each step
 - 📊 Confidence scoring for tool suggestions
 - 🔍 Detailed rationale for tool recommendations
 - 📝 Step tracking with expected outcomes
 - 🔄 Progress monitoring with previous and remaining steps
 - 🎯 Alternative tool suggestions for each step
+- 🧠 Memory management with configurable history limits
+- 🗑️ Manual history cleanup capabilities
 
 ## How It Works
 
-This server analyses each step of your thought process and recommends
-appropriate MCP tools to help accomplish the task. Each recommendation
-includes:
+This server facilitates sequential thinking with MCP tool coordination. The LLM analyzes available tools and their descriptions to make intelligent recommendations, which are then tracked and organized by this server.
 
-- A confidence score (0-1) indicating how well the tool matches the
-  current need
+The workflow:
+1. LLM provides available MCP tools to the sequential thinking server
+2. LLM analyzes each thought step and recommends appropriate tools
+3. Server tracks recommendations, maintains context, and manages memory
+4. LLM executes recommended tools and continues the thinking process
+
+Each recommendation includes:
+- A confidence score (0-1) indicating how well the tool matches the need
 - A clear rationale explaining why the tool would be helpful
 - A priority level to suggest tool execution order
+- Suggested input parameters for the tool
 - Alternative tools that could also be used
 
-The server works with any MCP tools available in your environment. It
-provides recommendations based on the current step's requirements, but
-the actual tool execution is handled by the consumer (like Claude).
+The server works with any MCP tools available in your environment and automatically manages memory to prevent unbounded growth.
 
 ## Example Usage
 
@@ -102,7 +107,10 @@ Add this to your Cline MCP settings:
 	"mcpServers": {
 		"mcp-sequentialthinking-tools": {
 			"command": "npx",
-			"args": ["-y", "mcp-sequentialthinking-tools"]
+			"args": ["-y", "mcp-sequentialthinking-tools"],
+			"env": {
+				"MAX_HISTORY_SIZE": "1000"
+			}
 		}
 	}
 }
@@ -120,7 +128,7 @@ For WSL environments, add this to your Claude Desktop configuration:
 			"args": [
 				"bash",
 				"-c",
-				"source ~/.nvm/nvm.sh && /home/username/.nvm/versions/node/v20.12.1/bin/npx mcp-sequentialthinking-tools"
+				"MAX_HISTORY_SIZE=1000 source ~/.nvm/nvm.sh && /home/username/.nvm/versions/node/v20.12.1/bin/npx mcp-sequentialthinking-tools"
 			]
 		}
 	}
@@ -138,6 +146,7 @@ with intelligent tool recommendations.
 
 Parameters:
 
+- `available_mcp_tools` (array, required): Array of MCP tool names available for use (e.g., ["mcp-omnisearch", "mcp-turso-cloud"])
 - `thought` (string, required): Your current thinking step
 - `next_thought_needed` (boolean, required): Whether another thought
   step is needed
@@ -162,6 +171,37 @@ Parameters:
 - `previous_steps` (array, optional): Steps already recommended
 - `remaining_steps` (array, optional): High-level descriptions of
   upcoming steps
+
+## Memory Management
+
+The server includes built-in memory management to prevent unbounded growth:
+
+- **History Limit**: Configurable maximum number of thoughts to retain (default: 1000)
+- **Automatic Trimming**: History automatically trims when limit is exceeded
+- **Manual Cleanup**: Server provides methods to clear history when needed
+
+### Configuring History Size
+
+You can configure the history size by setting the `MAX_HISTORY_SIZE` environment variable:
+
+```json
+{
+  "mcpServers": {
+    "mcp-sequentialthinking-tools": {
+      "command": "npx",
+      "args": ["-y", "mcp-sequentialthinking-tools"],
+      "env": {
+        "MAX_HISTORY_SIZE": "500"
+      }
+    }
+  }
+}
+```
+
+Or for local development:
+```bash
+MAX_HISTORY_SIZE=2000 npx mcp-sequentialthinking-tools
+```
 
 ## Development
 

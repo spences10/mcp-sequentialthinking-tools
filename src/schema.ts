@@ -4,7 +4,7 @@ const TOOL_DESCRIPTION = `A detailed tool for dynamic and reflective problem-sol
 This tool helps analyze problems through a flexible thinking process that can adapt and evolve.
 Each thought can build on, question, or revise previous insights as understanding deepens.
 
-IMPORTANT: When initializing this tool, you must pass all available tools that you want the sequential thinking process to be able to use. The tool will analyze these tools and provide recommendations for their use.
+IMPORTANT: This server facilitates sequential thinking with MCP tool coordination. The LLM analyzes available tools and their descriptions to make intelligent recommendations, which are then tracked and organized by this server.
 
 When to use this tool:
 - Breaking down complex problems into steps
@@ -30,6 +30,7 @@ Key features:
 - Tracks previous recommendations and remaining steps
 
 Parameters explained:
+- available_mcp_tools: Array of MCP tool names that are available for use (e.g., ["mcp-omnisearch", "mcp-turso-cloud"])
 - thought: Your current thinking step, which can include:
 * Regular analytical steps
 * Revisions of previous thoughts
@@ -78,6 +79,13 @@ export const SEQUENTIAL_THINKING_TOOL: Tool = {
 	inputSchema: {
 		type: 'object',
 		properties: {
+			available_mcp_tools: {
+				type: 'array',
+				description: 'Array of MCP tool names available for use (e.g., ["mcp-omnisearch", "mcp-turso-cloud"])',
+				items: {
+					type: 'string'
+				}
+			},
 			thought: {
 				type: 'string',
 				description: 'Your current thinking step',
@@ -252,6 +260,7 @@ export const SEQUENTIAL_THINKING_TOOL: Tool = {
 			}
 		},
 		required: [
+			'available_mcp_tools',
 			'thought',
 			'next_thought_needed',
 			'thought_number',

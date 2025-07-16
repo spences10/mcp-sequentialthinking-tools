@@ -39,18 +39,22 @@ const server = new Server(
 
 interface ServerOptions {
 	available_tools?: Tool[];
+	maxHistorySize?: number;
 }
 
 class ToolAwareSequentialThinkingServer {
 	private thought_history: ThoughtData[] = [];
 	private branches: Record<string, ThoughtData[]> = {};
 	private available_tools: Map<string, Tool> = new Map();
+	private maxHistorySize: number;
 
 	public getAvailableTools(): Tool[] {
 		return Array.from(this.available_tools.values());
 	}
 
 	constructor(options: ServerOptions = {}) {
+		this.maxHistorySize = options.maxHistorySize || 1000;
+		
 		// Always include the sequential thinking tool
 		const tools = [
 			SEQUENTIAL_THINKING_TOOL,
@@ -74,9 +78,33 @@ class ToolAwareSequentialThinkingServer {
 		);
 	}
 
+	public clearHistory(): void {
+		this.thought_history = [];
+		this.branches = {};
+		console.error('History cleared');
+	}
+
+	public addTool(tool: Tool): void {
+		if (this.available_tools.has(tool.name)) {
+			console.error(`Warning: Tool '${tool.name}' already exists`);
+			return;
+		}
+		this.available_tools.set(tool.name, tool);
+		console.error(`Added tool: ${tool.name}`);
+	}
+
+	public discoverTools(): void {
+		// In a real implementation, this would scan the environment
+		// for available MCP tools and add them to available_tools
+		console.error('Tool discovery not implemented - manually add tools via addTool()');
+	}
+
 	private validateThoughtData(input: unknown): ThoughtData {
 		const data = input as Record<string, unknown>;
 
+		if (!data.available_mcp_tools || !Array.isArray(data.available_mcp_tools)) {
+			throw new Error('Invalid available_mcp_tools: must be an array');
+		}
 		if (!data.thought || typeof data.thought !== 'string') {
 			throw new Error('Invalid thought: must be a string');
 		}
@@ -99,6 +127,7 @@ class ToolAwareSequentialThinkingServer {
 		}
 
 		const validated: ThoughtData = {
+			available_mcp_tools: data.available_mcp_tools as string[],
 			thought: data.thought,
 			thought_number: data.thought_number,
 			total_thoughts: data.total_thoughts,
@@ -228,6 +257,12 @@ Expected Outcome: ${step.expected_outcome}${
 			}
 
 			this.thought_history.push(validatedInput);
+		
+		// Prevent memory leaks by limiting history size
+		if (this.thought_history.length > this.maxHistorySize) {
+			this.thought_history = this.thought_history.slice(-this.maxHistorySize);
+			console.error(`History trimmed to ${this.maxHistorySize} items`);
+		}
 
 			if (
 				validatedInput.branch_from_thought &&
@@ -254,6 +289,7 @@ Expected Outcome: ${step.expected_outcome}${
 									validatedInput.next_thought_needed,
 								branches: Object.keys(this.branches),
 								thought_history_length: this.thought_history.length,
+								available_mcp_tools: validatedInput.available_mcp_tools,
 								current_step: validatedInput.current_step,
 								previous_steps: validatedInput.previous_steps,
 								remaining_steps: validatedInput.remaining_steps,
@@ -287,54 +323,16 @@ Expected Outcome: ${step.expected_outcome}${
 		}
 	}
 
-	private async execute_tool(
-		tool: Tool,
-		inputs: Record<string, unknown>,
-	): Promise<unknown> {
-		try {
-			// Call the tool through the server's request method
-			const response = await server.request(
-				{
-					method: 'callTool',
-					params: {
-						name: tool.name,
-						arguments: inputs,
-					},
-				},
-				CallToolRequestSchema,
-			);
-
-			// Extract the result from the response
-			if (
-				'content' in response &&
-				Array.isArray(response.content) &&
-				response.content.length > 0
-			) {
-				const content = response.content[0];
-				if ('text' in content && typeof content.text === 'string') {
-					try {
-						// Attempt to parse JSON result
-						return JSON.parse(content.text);
-					} catch {
-						// If not JSON, return as-is
-						return content.text;
-					}
-				}
-			}
-
-			throw new Error('Tool execution returned no content');
-		} catch (error) {
-			throw new Error(
-				`Failed to execute tool ${tool.name}: ${
-					error instanceof Error ? error.message : String(error)
-				}`,
-			);
-		}
-	}
+	// Tool execution removed - the MCP client handles tool execution
+	// This server only provides tool recommendations
 }
 
+// Read configuration from environment variables or command line args
+const maxHistorySize = parseInt(process.env.MAX_HISTORY_SIZE || '1000');
+
 const thinkingServer = new ToolAwareSequentialThinkingServer({
-	available_tools: [],
+	available_tools: [], // TODO: Add tool discovery mechanism
+	maxHistorySize,
 });
 
 // Expose all available tools
