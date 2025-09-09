@@ -1,4 +1,3 @@
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 export interface ToolRecommendation {
 	tool_name: string;
@@ -32,6 +31,12 @@ export interface ThoughtData {
 	current_step?: StepRecommendation;  // Current step being considered
 	previous_steps?: StepRecommendation[];  // Steps already recommended
 	remaining_steps?: string[];  // High-level descriptions of upcoming steps
+}
+
+export interface Tool {
+	name: string;
+	description: string;
+	inputSchema: Record<string, unknown>;
 }
 
 export interface ServerConfig {

@@ -3,36 +3,37 @@
 // adapted from https://github.com/modelcontextprotocol/servers/blob/main/src/sequentialthinking/index.ts
 // for use with mcp tools
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-	CallToolRequestSchema,
-	ListToolsRequestSchema,
-	Tool,
-} from '@modelcontextprotocol/sdk/types.js';
+import { McpServer } from 'tmcp';
+import { ValibotJsonSchemaAdapter } from '@tmcp/adapter-valibot';
+import { StdioTransport } from '@tmcp/transport-stdio';
+import * as v from 'valibot';
 import chalk from 'chalk';
-import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-import { SEQUENTIAL_THINKING_TOOL } from './schema.js';
-import { ThoughtData, ToolRecommendation, StepRecommendation } from './types.js';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { SequentialThinkingSchema, SEQUENTIAL_THINKING_TOOL } from './schema.js';
+import { ThoughtData, ToolRecommendation, StepRecommendation, Tool } from './types.js';
 
+// Get version from package.json
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const pkg = JSON.parse(
-	readFileSync(join(__dirname, '..', 'package.json'), 'utf8'),
+const package_json = JSON.parse(
+	readFileSync(join(__dirname, '../package.json'), 'utf-8'),
 );
-const { name, version } = pkg;
+const { name, version } = package_json;
 
-// Create MCP server instance with tools capability
-const server = new Server(
+// Create MCP server with tmcp
+const adapter = new ValibotJsonSchemaAdapter();
+const server = new McpServer(
 	{
 		name,
 		version,
+		description: 'MCP server for Sequential Thinking Tools',
 	},
 	{
+		adapter,
 		capabilities: {
-			tools: {},
+			tools: { listChanged: true },
 		},
 	},
 );
@@ -97,72 +98,6 @@ class ToolAwareSequentialThinkingServer {
 		// In a real implementation, this would scan the environment
 		// for available MCP tools and add them to available_tools
 		console.error('Tool discovery not implemented - manually add tools via addTool()');
-	}
-
-	private validateThoughtData(input: unknown): ThoughtData {
-		const data = input as Record<string, unknown>;
-
-		if (!data.available_mcp_tools || !Array.isArray(data.available_mcp_tools)) {
-			throw new Error('Invalid available_mcp_tools: must be an array');
-		}
-		if (!data.thought || typeof data.thought !== 'string') {
-			throw new Error('Invalid thought: must be a string');
-		}
-		if (
-			!data.thought_number ||
-			typeof data.thought_number !== 'number'
-		) {
-			throw new Error('Invalid thought_number: must be a number');
-		}
-		if (
-			!data.total_thoughts ||
-			typeof data.total_thoughts !== 'number'
-		) {
-			throw new Error('Invalid total_thoughts: must be a number');
-		}
-		if (typeof data.next_thought_needed !== 'boolean') {
-			throw new Error(
-				'Invalid next_thought_needed: must be a boolean',
-			);
-		}
-
-		const validated: ThoughtData = {
-			available_mcp_tools: data.available_mcp_tools as string[],
-			thought: data.thought,
-			thought_number: data.thought_number,
-			total_thoughts: data.total_thoughts,
-			next_thought_needed: data.next_thought_needed,
-			is_revision: data.is_revision as boolean | undefined,
-			revises_thought: data.revises_thought as number | undefined,
-			branch_from_thought: data.branch_from_thought as
-				| number
-				| undefined,
-			branch_id: data.branch_id as string | undefined,
-			needs_more_thoughts: data.needs_more_thoughts as
-				| boolean
-				| undefined,
-		};
-
-		// Validate recommendation-related fields if present
-		if (data.current_step) {
-			validated.current_step = data.current_step as StepRecommendation;
-		}
-
-		if (data.previous_steps) {
-			if (!Array.isArray(data.previous_steps)) {
-				throw new Error('previous_steps must be an array');
-			}
-			validated.previous_steps = data.previous_steps as StepRecommendation[];
-		}
-
-		if (data.remaining_steps) {
-			if (!Array.isArray(data.remaining_steps)) {
-				throw new Error('remaining_steps must be an array');
-			}
-			validated.remaining_steps = data.remaining_steps as string[];
-		}
-
-		return validated;
 	}
 
 	private formatRecommendation(step: StepRecommendation): string {
@@ -235,12 +170,10 @@ Expected Outcome: ${step.expected_outcome}${
 └${border}┘`;
 	}
 
-	public async processThought(input: unknown): Promise<{
-		content: Array<{ type: string; text: string }>;
-		isError?: boolean;
-	}> {
+	public async processThought(input: v.InferInput<typeof SequentialThinkingSchema>) {
 		try {
-			const validatedInput = this.validateThoughtData(input);
+			// Input is already validated by tmcp with Valibot
+			const validatedInput = input as ThoughtData;
 
 			if (
 				validatedInput.thought_number > validatedInput.total_thoughts
@@ -280,7 +213,7 @@ Expected Outcome: ${step.expected_outcome}${
 			return {
 				content: [
 					{
-						type: 'text',
+						type: 'text' as const,
 						text: JSON.stringify(
 							{
 								thought_number: validatedInput.thought_number,
@@ -304,7 +237,7 @@ Expected Outcome: ${step.expected_outcome}${
 			return {
 				content: [
 					{
-						type: 'text',
+						type: 'text' as const,
 						text: JSON.stringify(
 							{
 								error:
@@ -335,34 +268,25 @@ const thinkingServer = new ToolAwareSequentialThinkingServer({
 	maxHistorySize,
 });
 
-// Expose all available tools
-server.setRequestHandler(ListToolsRequestSchema, async () => ({
-	tools: thinkingServer.getAvailableTools(),
-}));
+// Register the sequential thinking tool
+server.tool(
+	{
+		name: 'sequentialthinking_tools',
+		description: SEQUENTIAL_THINKING_TOOL.description,
+		schema: SequentialThinkingSchema,
+	},
+	async (input) => {
+		return thinkingServer.processThought(input);
+	},
+);
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-	if (request.params.name === 'sequentialthinking_tools') {
-		return thinkingServer.processThought(request.params.arguments);
-	}
-
-	return {
-		content: [
-			{
-				type: 'text',
-				text: `Unknown tool: ${request.params.name}`,
-			},
-		],
-		isError: true,
-	};
-});
-
-async function runServer() {
-	const transport = new StdioServerTransport();
-	await server.connect(transport);
+async function main() {
+	const transport = new StdioTransport(server);
+	transport.listen();
 	console.error('Sequential Thinking MCP Server running on stdio');
 }
 
-runServer().catch((error) => {
+main().catch((error) => {
 	console.error('Fatal error running server:', error);
 	process.exit(1);
 });

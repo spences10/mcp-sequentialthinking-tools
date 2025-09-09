@@ -1,4 +1,5 @@
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import * as v from 'valibot';
+import { Tool } from './types.js';
 
 const TOOL_DESCRIPTION = `A detailed tool for dynamic and reflective problem-solving through thoughts.
 This tool helps analyze problems through a flexible thinking process that can adapt and evolve.
@@ -73,198 +74,115 @@ You should:
 14. Provide a single, ideally correct answer as the final output
 15. Only set next_thought_needed to false when truly done and a satisfactory answer is reached`;
 
+export const ToolRecommendationSchema = v.object({
+	tool_name: v.pipe(
+		v.string(),
+		v.description('Name of the tool being recommended')
+	),
+	confidence: v.pipe(
+		v.number(),
+		v.minValue(0),
+		v.maxValue(1),
+		v.description('0-1 indicating confidence in recommendation')
+	),
+	rationale: v.pipe(
+		v.string(),
+		v.description('Why this tool is recommended')
+	),
+	priority: v.pipe(
+		v.number(),
+		v.description('Order in the recommendation sequence')
+	),
+	suggested_inputs: v.optional(v.pipe(
+		v.record(v.string(), v.unknown()),
+		v.description('Optional suggested parameters')
+	)),
+	alternatives: v.optional(v.pipe(
+		v.array(v.string()),
+		v.description('Alternative tools that could be used')
+	))
+});
+
+export const StepRecommendationSchema = v.object({
+	step_description: v.pipe(
+		v.string(),
+		v.description('What needs to be done')
+	),
+	recommended_tools: v.pipe(
+		v.array(ToolRecommendationSchema),
+		v.description('Tools recommended for this step')
+	),
+	expected_outcome: v.pipe(
+		v.string(),
+		v.description('What to expect from this step')
+	),
+	next_step_conditions: v.optional(v.pipe(
+		v.array(v.string()),
+		v.description('Conditions to consider for the next step')
+	))
+});
+
+export const SequentialThinkingSchema = v.object({
+	available_mcp_tools: v.pipe(
+		v.array(v.string()),
+		v.description('Array of MCP tool names available for use (e.g., ["mcp-omnisearch", "mcp-turso-cloud"])')
+	),
+	thought: v.pipe(
+		v.string(),
+		v.description('Your current thinking step')
+	),
+	next_thought_needed: v.pipe(
+		v.boolean(),
+		v.description('Whether another thought step is needed')
+	),
+	thought_number: v.pipe(
+		v.number(),
+		v.minValue(1),
+		v.description('Current thought number')
+	),
+	total_thoughts: v.pipe(
+		v.number(),
+		v.minValue(1),
+		v.description('Estimated total thoughts needed')
+	),
+	is_revision: v.optional(v.pipe(
+		v.boolean(),
+		v.description('Whether this revises previous thinking')
+	)),
+	revises_thought: v.optional(v.pipe(
+		v.number(),
+		v.minValue(1),
+		v.description('Which thought is being reconsidered')
+	)),
+	branch_from_thought: v.optional(v.pipe(
+		v.number(),
+		v.minValue(1),
+		v.description('Branching point thought number')
+	)),
+	branch_id: v.optional(v.pipe(
+		v.string(),
+		v.description('Branch identifier')
+	)),
+	needs_more_thoughts: v.optional(v.pipe(
+		v.boolean(),
+		v.description('If more thoughts are needed')
+	)),
+	current_step: v.optional(v.pipe(
+		StepRecommendationSchema,
+		v.description('Current step recommendation')
+	)),
+	previous_steps: v.optional(v.pipe(
+		v.array(StepRecommendationSchema),
+		v.description('Steps already recommended')
+	)),
+	remaining_steps: v.optional(v.pipe(
+		v.array(v.string()),
+		v.description('High-level descriptions of upcoming steps')
+	))
+});
+
 export const SEQUENTIAL_THINKING_TOOL: Tool = {
 	name: 'sequentialthinking_tools',
 	description: TOOL_DESCRIPTION,
-	inputSchema: {
-		type: 'object',
-		properties: {
-			available_mcp_tools: {
-				type: 'array',
-				description: 'Array of MCP tool names available for use (e.g., ["mcp-omnisearch", "mcp-turso-cloud"])',
-				items: {
-					type: 'string'
-				}
-			},
-			thought: {
-				type: 'string',
-				description: 'Your current thinking step',
-			},
-			next_thought_needed: {
-				type: 'boolean',
-				description: 'Whether another thought step is needed',
-			},
-			thought_number: {
-				type: 'integer',
-				description: 'Current thought number',
-				minimum: 1,
-			},
-			total_thoughts: {
-				type: 'integer',
-				description: 'Estimated total thoughts needed',
-				minimum: 1,
-			},
-			is_revision: {
-				type: 'boolean',
-				description: 'Whether this revises previous thinking',
-			},
-			revises_thought: {
-				type: 'integer',
-				description: 'Which thought is being reconsidered',
-				minimum: 1,
-			},
-			branch_from_thought: {
-				type: 'integer',
-				description: 'Branching point thought number',
-				minimum: 1,
-			},
-			branch_id: {
-				type: 'string',
-				description: 'Branch identifier',
-			},
-			needs_more_thoughts: {
-				type: 'boolean',
-				description: 'If more thoughts are needed',
-			},
-			current_step: {
-				type: 'object',
-				description: 'Current step recommendation',
-				properties: {
-					step_description: {
-						type: 'string',
-						description: 'What needs to be done'
-					},
-					recommended_tools: {
-						type: 'array',
-						description: 'Tools recommended for this step',
-						items: {
-							type: 'object',
-							properties: {
-								tool_name: {
-									type: 'string',
-									description: 'Name of the tool being recommended'
-								},
-								confidence: {
-									type: 'number',
-									description: '0-1 indicating confidence in recommendation',
-									minimum: 0,
-									maximum: 1
-								},
-								rationale: {
-									type: 'string',
-									description: 'Why this tool is recommended'
-								},
-								priority: {
-									type: 'number',
-									description: 'Order in the recommendation sequence'
-								},
-								suggested_inputs: {
-									type: 'object',
-									description: 'Optional suggested parameters'
-								},
-								alternatives: {
-									type: 'array',
-									description: 'Alternative tools that could be used',
-									items: {
-										type: 'string'
-									}
-								}
-							},
-							required: ['tool_name', 'confidence', 'rationale', 'priority']
-						}
-					},
-					expected_outcome: {
-						type: 'string',
-						description: 'What to expect from this step'
-					},
-					next_step_conditions: {
-						type: 'array',
-						description: 'Conditions to consider for the next step',
-						items: {
-							type: 'string'
-						}
-					}
-				},
-				required: ['step_description', 'recommended_tools', 'expected_outcome']
-			},
-			previous_steps: {
-				type: 'array',
-				description: 'Steps already recommended',
-				items: {
-					type: 'object',
-					properties: {
-						step_description: {
-							type: 'string',
-							description: 'What needs to be done'
-						},
-						recommended_tools: {
-							type: 'array',
-							description: 'Tools recommended for this step',
-							items: {
-								type: 'object',
-								properties: {
-									tool_name: {
-										type: 'string',
-										description: 'Name of the tool being recommended'
-									},
-									confidence: {
-										type: 'number',
-										description: '0-1 indicating confidence in recommendation',
-										minimum: 0,
-										maximum: 1
-									},
-									rationale: {
-										type: 'string',
-										description: 'Why this tool is recommended'
-									},
-									priority: {
-										type: 'number',
-										description: 'Order in the recommendation sequence'
-									},
-									suggested_inputs: {
-										type: 'object',
-										description: 'Optional suggested parameters'
-									},
-									alternatives: {
-										type: 'array',
-										description: 'Alternative tools that could be used',
-										items: {
-											type: 'string'
-										}
-									}
-								},
-								required: ['tool_name', 'confidence', 'rationale', 'priority']
-							}
-						},
-						expected_outcome: {
-							type: 'string',
-							description: 'What to expect from this step'
-						},
-						next_step_conditions: {
-							type: 'array',
-							description: 'Conditions to consider for the next step',
-							items: {
-								type: 'string'
-							}
-						}
-					},
-					required: ['step_description', 'recommended_tools', 'expected_outcome']
-				}
-			},
-			remaining_steps: {
-				type: 'array',
-				description: 'High-level descriptions of upcoming steps',
-				items: {
-					type: 'string'
-				}
-			}
-		},
-		required: [
-			'available_mcp_tools',
-			'thought',
-			'next_thought_needed',
-			'thought_number',
-			'total_thoughts',
-		],
-	},
+	inputSchema: {} // This will be handled by tmcp with the schema above
 };
