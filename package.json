@@ -53,9 +53,9 @@
 	"homepage": "https://github.com/spences10/mcp-sequentialthinking-tools#readme",
 	"dependencies": {
 		"@tmcp/adapter-valibot": "^0.1.4",
-		"@tmcp/transport-stdio": "^0.3.1",
+		"@tmcp/transport-stdio": "^0.4.0",
 		"chalk": "^5.6.2",
-		"tmcp": "^1.14.0",
+		"tmcp": "^1.16.0",
 		"valibot": "^1.1.0"
 	},
 	"devDependencies": {
