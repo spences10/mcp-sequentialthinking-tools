@@ -10,16 +10,16 @@ importers:
     dependencies:
       '@tmcp/adapter-valibot':
         specifier: ^0.1.4
-        version: 0.1.4(tmcp@1.14.0(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))
+        version: 0.1.4(tmcp@1.16.0(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))
       '@tmcp/transport-stdio':
-        specifier: ^0.3.1
-        version: 0.3.1(tmcp@1.14.0(typescript@5.9.3))
+        specifier: ^0.4.0
+        version: 0.4.0(tmcp@1.16.0(typescript@5.9.3))
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
       tmcp:
-        specifier: ^1.14.0
-        version: 1.14.0(typescript@5.9.3)
+        specifier: ^1.16.0
+        version: 1.16.0(typescript@5.9.3)
       valibot:
         specifier: ^1.1.0
         version: 1.1.0(typescript@5.9.3)
@@ -131,10 +131,10 @@ packages:
       tmcp: ^1.10.2
       valibot: ^1.1.0
 
-  '@tmcp/transport-stdio@0.3.1':
-    resolution: {integrity: sha512-r+eiHa2URw5+lBMRI0t4D84LfcWHam3DsTog/lPZSALIjlYxlFUfAaJ8dgh5gdQnmXiFJfE9hzmN0gIrB6+Lzw==}
+  '@tmcp/transport-stdio@0.4.0':
+    resolution: {integrity: sha512-GPfYj8Yn7OqLv7yDzOzonZ2E9SyPphgmmiByBfhNYKBb5Mzp5aSVUJ3cjuiOOz4ZvpM9FzwMmxOt8wNURZxjmQ==}
     peerDependencies:
-      tmcp: ^1.14.0
+      tmcp: ^1.16.0
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
@@ -423,8 +423,8 @@ packages:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
     engines: {node: '>=8'}
 
-  tmcp@1.14.0:
-    resolution: {integrity: sha512-9TUZ6Qm2yNjqXcEyqjvsK38n/7z937ingf2fQtXLcUfcS5n9fsweuWRgKvaDCoCiE4Ibihoy7i+MqUWvHw/VNA==}
+  tmcp@1.16.0:
+    resolution: {integrity: sha512-E2ypyH00XoNaliR+gilZAtWGQBkgfrCT2bjEcJsnlVwZfsHYOTMp9Q8K9G5JtDB/UaCP2TJyjp+UG5BumUc/4Q==}
 
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
@@ -643,16 +643,16 @@ snapshots:
 
   '@standard-schema/spec@1.0.0': {}
 
-  '@tmcp/adapter-valibot@0.1.4(tmcp@1.14.0(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))':
+  '@tmcp/adapter-valibot@0.1.4(tmcp@1.16.0(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))':
     dependencies:
       '@standard-schema/spec': 1.0.0
       '@valibot/to-json-schema': 1.3.0(valibot@1.1.0(typescript@5.9.3))
-      tmcp: 1.14.0(typescript@5.9.3)
+      tmcp: 1.16.0(typescript@5.9.3)
       valibot: 1.1.0(typescript@5.9.3)
 
-  '@tmcp/transport-stdio@0.3.1(tmcp@1.14.0(typescript@5.9.3))':
+  '@tmcp/transport-stdio@0.4.0(tmcp@1.16.0(typescript@5.9.3))':
     dependencies:
-      tmcp: 1.14.0(typescript@5.9.3)
+      tmcp: 1.16.0(typescript@5.9.3)
 
   '@types/node@12.20.55': {}
 
@@ -893,7 +893,7 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  tmcp@1.14.0(typescript@5.9.3):
+  tmcp@1.16.0(typescript@5.9.3):
     dependencies:
       '@standard-schema/spec': 1.0.0
       json-rpc-2.0: 1.7.1
