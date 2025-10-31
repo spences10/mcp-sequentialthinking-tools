@@ -55,12 +55,12 @@
 		"@tmcp/adapter-valibot": "^0.1.4",
 		"@tmcp/transport-stdio": "^0.4.0",
 		"chalk": "^5.6.2",
-		"tmcp": "^1.16.0",
+		"tmcp": "^1.16.1",
 		"valibot": "^1.1.0"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.29.7",
-		"@types/node": "^24.6.1",
+		"@types/node": "^24.9.2",
 		"typescript": "^5.9.3"
 	}
 }
