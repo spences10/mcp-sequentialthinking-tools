@@ -13,7 +13,7 @@ importers:
         version: 0.1.4(tmcp@1.16.2(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))
       '@tmcp/transport-stdio':
         specifier: ^0.4.0
-        version: 0.4.0(tmcp@1.16.2(typescript@5.9.3))
+        version: 0.4.1(tmcp@1.16.2(typescript@5.9.3))
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -131,10 +131,10 @@ packages:
       tmcp: ^1.10.2
       valibot: ^1.1.0
 
-  '@tmcp/transport-stdio@0.4.0':
-    resolution: {integrity: sha512-GPfYj8Yn7OqLv7yDzOzonZ2E9SyPphgmmiByBfhNYKBb5Mzp5aSVUJ3cjuiOOz4ZvpM9FzwMmxOt8wNURZxjmQ==}
+  '@tmcp/transport-stdio@0.4.1':
+    resolution: {integrity: sha512-464x8HNrvjLLtKZsrFWUL13GnBFFtrNoWxnE0rHbcmQSYRqtS8WseWtQCYstj2Vcg9kRlIUVFGDIljGNP4/N4A==}
     peerDependencies:
-      tmcp: ^1.16.0
+      tmcp: ^1.16.3
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
@@ -650,7 +650,7 @@ snapshots:
       tmcp: 1.16.2(typescript@5.9.3)
       valibot: 1.1.0(typescript@5.9.3)
 
-  '@tmcp/transport-stdio@0.4.0(tmcp@1.16.2(typescript@5.9.3))':
+  '@tmcp/transport-stdio@0.4.1(tmcp@1.16.2(typescript@5.9.3))':
     dependencies:
       tmcp: 1.16.2(typescript@5.9.3)
 
