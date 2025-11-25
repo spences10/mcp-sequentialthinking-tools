@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@tmcp/adapter-valibot':
         specifier: ^0.1.4
-        version: 0.1.4(tmcp@1.16.2(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))
+        version: 0.1.4(tmcp@1.16.2(typescript@5.9.3))(valibot@1.2.0(typescript@5.9.3))
       '@tmcp/transport-stdio':
         specifier: ^0.4.0
         version: 0.4.0(tmcp@1.16.2(typescript@5.9.3))
@@ -22,7 +22,7 @@ importers:
         version: 1.16.2(typescript@5.9.3)
       valibot:
         specifier: ^1.1.0
-        version: 1.1.0(typescript@5.9.3)
+        version: 1.2.0(typescript@5.9.3)
     devDependencies:
       '@changesets/cli':
         specifier: ^2.29.7
@@ -445,8 +445,8 @@ packages:
   uri-template-matcher@1.1.2:
     resolution: {integrity: sha512-uZc1h12jdO3m/R77SfTEOuo6VbMhgWznaawKpBjRGSJb7i91x5PgI37NQJtG+Cerxkk0yr1pylBY2qG1kQ+aEQ==}
 
-  valibot@1.1.0:
-    resolution: {integrity: sha512-Nk8lX30Qhu+9txPYTwM0cFlWLdPFsFr6LblzqIySfbZph9+BFsAHsNvHOymEviUepeIW6KFHzpX8TKhbptBXXw==}
+  valibot@1.2.0:
+    resolution: {integrity: sha512-mm1rxUsmOxzrwnX5arGS+U4T25RdvpPjPN4yR0u9pUBov9+zGVtO84tif1eY4r6zWxVxu3KzIyknJy3rxfRZZg==}
     peerDependencies:
       typescript: '>=5'
     peerDependenciesMeta:
@@ -643,12 +643,12 @@ snapshots:
 
   '@standard-schema/spec@1.0.0': {}
 
-  '@tmcp/adapter-valibot@0.1.4(tmcp@1.16.2(typescript@5.9.3))(valibot@1.1.0(typescript@5.9.3))':
+  '@tmcp/adapter-valibot@0.1.4(tmcp@1.16.2(typescript@5.9.3))(valibot@1.2.0(typescript@5.9.3))':
     dependencies:
       '@standard-schema/spec': 1.0.0
-      '@valibot/to-json-schema': 1.3.0(valibot@1.1.0(typescript@5.9.3))
+      '@valibot/to-json-schema': 1.3.0(valibot@1.2.0(typescript@5.9.3))
       tmcp: 1.16.2(typescript@5.9.3)
-      valibot: 1.1.0(typescript@5.9.3)
+      valibot: 1.2.0(typescript@5.9.3)
 
   '@tmcp/transport-stdio@0.4.0(tmcp@1.16.2(typescript@5.9.3))':
     dependencies:
@@ -660,9 +660,9 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
-  '@valibot/to-json-schema@1.3.0(valibot@1.1.0(typescript@5.9.3))':
+  '@valibot/to-json-schema@1.3.0(valibot@1.2.0(typescript@5.9.3))':
     dependencies:
-      valibot: 1.1.0(typescript@5.9.3)
+      valibot: 1.2.0(typescript@5.9.3)
 
   ansi-colors@4.1.3: {}
 
@@ -899,7 +899,7 @@ snapshots:
       json-rpc-2.0: 1.7.1
       sqids: 0.3.0
       uri-template-matcher: 1.1.2
-      valibot: 1.1.0(typescript@5.9.3)
+      valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
@@ -915,7 +915,7 @@ snapshots:
 
   uri-template-matcher@1.1.2: {}
 
-  valibot@1.1.0(typescript@5.9.3):
+  valibot@1.2.0(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
 
