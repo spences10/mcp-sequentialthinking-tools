@@ -1,6 +1,6 @@
 {
 	"name": "mcp-sequentialthinking-tools",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "Lightweight MCP sequential thinking scratchpad with optional tool-plan validation",
 	"keywords": [
 		"ai",

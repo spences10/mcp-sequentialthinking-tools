@@ -1,5 +1,13 @@
 # mcp-sequentialthinking-tools
 
+## 0.0.5
+
+### Patch Changes
+
+- 785d842: Rewrite as lightweight sequential-thinking scratchpad with
+  session history, tool validation, sanitization, tests, and vite-plus
+  tooling.
+
 ## 0.0.4
 
 ### Patch Changes
