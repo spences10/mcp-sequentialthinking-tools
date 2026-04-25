@@ -1,10 +1,28 @@
 {
 	"name": "mcp-sequentialthinking-tools",
 	"version": "0.0.4",
-	"description": "MCP server for Sequential Thinking Tools",
-	"type": "module",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"description": "Lightweight MCP sequential thinking scratchpad with optional tool-plan validation",
+	"keywords": [
+		"ai",
+		"llm",
+		"mcp",
+		"model-context-protocol",
+		"planning",
+		"reasoning",
+		"sequential-thinking",
+		"tmcp",
+		"tool-validation"
+	],
+	"homepage": "https://github.com/spences10/mcp-sequentialthinking-tools#readme",
+	"bugs": {
+		"url": "https://github.com/spences10/mcp-sequentialthinking-tools/issues"
+	},
+	"license": "MIT",
+	"author": "Scott Spence",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/spences10/mcp-sequentialthinking-tools.git"
+	},
 	"bin": {
 		"mcp-sequentialthinking-tools": "./dist/index.js"
 	},
@@ -13,54 +31,34 @@
 		"README.md",
 		"LICENSE"
 	],
+	"type": "module",
 	"scripts": {
-		"build": "tsc && chmod +x dist/index.js",
-		"start": "node dist/index.js",
-		"dev": "npx @modelcontextprotocol/inspector dist/index.js",
+		"build": "vp pack",
+		"dev": "vp pack --watch",
+		"start": "node ./dist/index.js",
+		"check": "vp check",
+		"check:fix": "vp check --fix",
+		"format": "vp check --fix",
+		"test": "vp test",
+		"test:watch": "vp test watch",
 		"changeset": "changeset",
 		"version": "changeset version",
 		"release": "pnpm run build && changeset publish"
 	},
-	"keywords": [
-		"mcp",
-		"model-context-protocol",
-		"sequential-thinking",
-		"problem-solving",
-		"tool-recommendation",
-		"decision-making",
-		"thought-process",
-		"step-by-step",
-		"llm",
-		"ai",
-		"branching-thoughts",
-		"thought-revision",
-		"tool-analysis",
-		"problem-breakdown",
-		"solution-planning",
-		"adaptive-thinking",
-		"reflective-analysis",
-		"tool-confidence"
-	],
-	"author": "Scott Spence",
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/spences10/mcp-sequentialthinking-tools.git"
-	},
-	"bugs": {
-		"url": "https://github.com/spences10/mcp-sequentialthinking-tools/issues"
-	},
-	"homepage": "https://github.com/spences10/mcp-sequentialthinking-tools#readme",
 	"dependencies": {
 		"@tmcp/adapter-valibot": "^0.1.5",
-		"@tmcp/transport-stdio": "^0.4.1",
-		"chalk": "^5.6.2",
 		"tmcp": "^1.19.0",
 		"valibot": "^1.2.0"
 	},
 	"devDependencies": {
-		"@changesets/cli": "^2.29.8",
-		"@types/node": "^25.0.2",
-		"typescript": "^5.9.3"
-	}
+		"@changesets/cli": "^2.31.0",
+		"@types/node": "^25.6.0",
+		"typescript": "^5.9.3",
+		"vite-plus": "^0.1.19",
+		"vitest": "^4.1.5"
+	},
+	"engines": {
+		"node": ">=22.0.0"
+	},
+	"packageManager": "pnpm@10.28.0"
 }

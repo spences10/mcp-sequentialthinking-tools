@@ -1,44 +1,60 @@
+export type tool_reference =
+	| string
+	| {
+			name: string;
+			description?: string;
+	  };
 
-export interface ToolRecommendation {
+export interface tool_recommendation {
 	tool_name: string;
-	confidence: number;  // 0-1 indicating how confident we are this tool is appropriate
-	rationale: string;  // Why this tool is recommended
-	priority: number;   // Order in the recommendation sequence
-	suggested_inputs?: Record<string, unknown>;  // Optional suggested parameters
-	alternatives?: string[];  // Alternative tools that could be used
+	confidence?: number;
+	rationale?: string;
+	priority?: number;
+	suggested_inputs?: Record<string, unknown>;
+	alternatives?: string[];
 }
 
-export interface StepRecommendation {
-	step_description: string;  // What needs to be done
-	recommended_tools: ToolRecommendation[];  // Tools recommended for this step
-	expected_outcome: string;  // What to expect from this step
-	next_step_conditions?: string[];  // Conditions to consider for the next step
-}
-
-export interface ThoughtData {
-	available_mcp_tools: string[];  // Array of MCP tool names available for use
+export interface thought_input {
+	session_id?: string;
 	thought: string;
 	thought_number: number;
 	total_thoughts: number;
+	next_thought_needed: boolean;
 	is_revision?: boolean;
 	revises_thought?: number;
 	branch_from_thought?: number;
 	branch_id?: string;
 	needs_more_thoughts?: boolean;
+	available_tools?: tool_reference[];
+	recommended_tools?: tool_recommendation[];
+	remaining_steps?: string[];
+}
+
+export interface thought_record extends thought_input {
+	session_id: string;
+	created_at: string;
+}
+
+export interface validation_issue {
+	field: string;
+	message: string;
+}
+
+export interface security_warning {
+	field: string;
+	pattern: string;
+}
+
+export interface thought_result {
+	session_id: string;
+	thought_number: number;
+	total_thoughts: number;
 	next_thought_needed: boolean;
-	
-	// Recommendation-related fields
-	current_step?: StepRecommendation;  // Current step being considered
-	previous_steps?: StepRecommendation[];  // Steps already recommended
-	remaining_steps?: string[];  // High-level descriptions of upcoming steps
-}
-
-export interface Tool {
-	name: string;
-	description: string;
-	inputSchema: Record<string, unknown>;
-}
-
-export interface ServerConfig {
-	available_tools: Map<string, Tool>;
+	needs_more_thoughts?: boolean;
+	branches: string[];
+	history_length: number;
+	invalid_recommendations?: validation_issue[];
+	security_warnings?: security_warning[];
+	recommended_tools?: tool_recommendation[];
+	remaining_steps?: string[];
 }
