@@ -1,5 +1,12 @@
 # mcp-sequentialthinking-tools
 
+## 0.1.0
+
+### Minor Changes
+
+- 1b4e2fb: Add MCP 2026-07-28 support with stateless discovery and the
+  official tmcp stdio transport.
+
 ## 0.0.5
 
 ### Patch Changes
