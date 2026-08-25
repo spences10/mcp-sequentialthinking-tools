@@ -1,8 +1,1 @@
 minimumReleaseAge: 2880
-
-minimumReleaseAgeExclude:
-  - tmcp
-  - '@tmcp/*'
-  - vite-plus
-  - '@voidzero-dev/*'
-  - '@types/node'
