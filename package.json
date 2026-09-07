@@ -53,7 +53,7 @@
 	},
 	"devDependencies": {
 		"@changesets/cli": "^3.0.1",
-		"@types/node": "26.2.0",
+		"@types/node": "26.5.0",
 		"typescript": "^7.0.2",
 		"vite-plus": "0.2.9",
 		"vitest": "4.1.10"
