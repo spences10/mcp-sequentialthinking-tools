@@ -9,7 +9,10 @@ export default defineConfig({
 		outExtensions: () => ({ js: '.js' }),
 	},
 	test: {
+		expect: { requireAssertions: true },
 		include: ['src/**/*.test.ts'],
+		exclude: ['dist/**', 'node_modules/**'],
+		testTimeout: 15000,
 	},
 	fmt: {
 		useTabs: true,

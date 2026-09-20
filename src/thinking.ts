@@ -1,36 +1,36 @@
 import { sanitize_record, scan_record } from './security.js';
 import type {
-	thought_input,
-	thought_record,
-	thought_result,
-	tool_reference,
-	validation_issue,
+	ThoughtInput,
+	ThoughtRecord,
+	ThoughtResult,
+	ToolReference,
+	ValidationIssue,
 } from './types.js';
 
 const DEFAULT_SESSION = 'default';
 
-export interface thinking_store_options {
+export interface ThinkingStoreOptions {
 	max_history_size?: number;
 }
 
-export class thinking_store {
+export class ThinkingStore {
 	readonly max_history_size: number;
-	private readonly sessions = new Map<string, thought_record[]>();
+	private readonly sessions = new Map<string, ThoughtRecord[]>();
 
-	constructor(options: thinking_store_options = {}) {
+	constructor(options: ThinkingStoreOptions = {}) {
 		this.max_history_size = sanitize_limit(
 			options.max_history_size,
 			1000,
 		);
 	}
 
-	add(input: thought_input): thought_result {
+	add(input: ThoughtInput): ThoughtResult {
 		const session_id = normalize_session(input.session_id);
 		const total_thoughts = Math.max(
 			input.total_thoughts,
 			input.thought_number,
 		);
-		const raw_record: thought_record = {
+		const raw_record: ThoughtRecord = {
 			...input,
 			session_id,
 			total_thoughts,
@@ -121,7 +121,7 @@ export class thinking_store {
 		return { session_id, cleared_sessions: 1, cleared_thoughts };
 	}
 
-	private history(session_id: string): thought_record[] {
+	private history(session_id: string): ThoughtRecord[] {
 		return this.sessions.get(session_id) ?? [];
 	}
 
@@ -139,8 +139,8 @@ export class thinking_store {
 }
 
 function validate_recommendations(
-	input: thought_record,
-): validation_issue[] {
+	input: ThoughtRecord,
+): ValidationIssue[] {
 	if (
 		!input.recommended_tools?.length ||
 		!input.available_tools?.length
@@ -149,7 +149,7 @@ function validate_recommendations(
 	}
 
 	const available = new Set(input.available_tools.map(tool_name));
-	const issues: validation_issue[] = [];
+	const issues: ValidationIssue[] = [];
 	input.recommended_tools.forEach((recommendation, index) => {
 		if (!available.has(recommendation.tool_name)) {
 			issues.push({
@@ -169,7 +169,7 @@ function validate_recommendations(
 	return issues;
 }
 
-function tool_name(tool: tool_reference): string {
+function tool_name(tool: ToolReference): string {
 	return typeof tool === 'string' ? tool : tool.name;
 }
 

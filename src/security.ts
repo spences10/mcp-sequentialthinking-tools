@@ -1,8 +1,8 @@
 import type {
-	security_warning,
-	thought_record,
-	tool_recommendation,
-	tool_reference,
+	SecurityWarning,
+	ThoughtRecord,
+	ToolRecommendation,
+	ToolReference,
 } from './types.js';
 
 const injection_patterns: Array<{ name: string; pattern: RegExp }> = [
@@ -37,7 +37,7 @@ const redaction = '[redacted: possible prompt-injection text]';
 export function scan_text(
 	field: string,
 	value: string | undefined,
-): security_warning[] {
+): SecurityWarning[] {
 	if (!value) {
 		return [];
 	}
@@ -54,8 +54,8 @@ export function sanitize_text(value: string): string {
 }
 
 export function scan_record(
-	record: thought_record,
-): security_warning[] {
+	record: ThoughtRecord,
+): SecurityWarning[] {
 	return [
 		...scan_text('thought', record.thought),
 		...(record.remaining_steps ?? []).flatMap((step, index) =>
@@ -71,8 +71,8 @@ export function scan_record(
 }
 
 export function sanitize_record(
-	record: thought_record,
-): thought_record {
+	record: ThoughtRecord,
+): ThoughtRecord {
 	return {
 		...record,
 		thought: sanitize_text(record.thought),
@@ -87,9 +87,9 @@ export function sanitize_record(
 }
 
 function scan_tool_reference(
-	tool: tool_reference,
+	tool: ToolReference,
 	field: string,
-): security_warning[] {
+): SecurityWarning[] {
 	if (typeof tool === 'string') {
 		return scan_text(field, tool);
 	}
@@ -100,9 +100,9 @@ function scan_tool_reference(
 }
 
 function scan_tool_recommendation(
-	tool: tool_recommendation,
+	tool: ToolRecommendation,
 	field: string,
-): security_warning[] {
+): SecurityWarning[] {
 	return [
 		...scan_text(`${field}.tool_name`, tool.tool_name),
 		...scan_text(`${field}.rationale`, tool.rationale),
@@ -112,9 +112,7 @@ function scan_tool_recommendation(
 	];
 }
 
-function sanitize_tool_reference(
-	tool: tool_reference,
-): tool_reference {
+function sanitize_tool_reference(tool: ToolReference): ToolReference {
 	if (typeof tool === 'string') {
 		return sanitize_text(tool);
 	}
@@ -128,8 +126,8 @@ function sanitize_tool_reference(
 }
 
 function sanitize_tool_recommendation(
-	tool: tool_recommendation,
-): tool_recommendation {
+	tool: ToolRecommendation,
+): ToolRecommendation {
 	return {
 		...tool,
 		tool_name: sanitize_text(tool.tool_name),

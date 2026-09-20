@@ -39,8 +39,11 @@
 		"check": "vp check",
 		"check:fix": "vp check --fix",
 		"format": "vp check --fix",
+		"lint": "vp check",
+		"lint:fix": "vp check --fix",
 		"test": "vp test",
 		"test:watch": "vp test watch",
+		"prepublishOnly": "pnpm build",
 		"changeset": "changeset",
 		"version": "changeset version",
 		"release": "pnpm run build && changeset publish"

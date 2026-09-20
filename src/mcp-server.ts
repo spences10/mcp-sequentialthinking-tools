@@ -7,7 +7,7 @@ import {
 	guidance_prompt_schema,
 	sequential_thinking_schema,
 } from './schema.js';
-import { thinking_store } from './thinking.js';
+import { ThinkingStore } from './thinking.js';
 
 export interface ServerMetadata {
 	name: string;
@@ -25,7 +25,7 @@ export function create_mcp_server(metadata: ServerMetadata) {
 		},
 	});
 	const max_history_size = parse_int_env('MAX_HISTORY_SIZE', 1000);
-	const thinking = new thinking_store({ max_history_size });
+	const thinking = new ThinkingStore({ max_history_size });
 
 	server.tool(
 		{

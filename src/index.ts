@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { create_mcp_server } from './mcp-server.js';
-import type { thought_result } from './types.js';
+import type { ThoughtResult } from './types.js';
 
 const module_directory = dirname(fileURLToPath(import.meta.url));
 const package_info = JSON.parse(
@@ -22,4 +22,4 @@ const server = create_mcp_server({
 
 new StdioTransport(server).listen();
 
-export type sequential_thinking_result = thought_result;
+export type SequentialThinkingResult = ThoughtResult;

@@ -1,51 +1,38 @@
-export type tool_reference =
-	| string
-	| {
-			name: string;
-			description?: string;
-	  };
+import type * as v from 'valibot';
+import type {
+	sequential_thinking_schema,
+	tool_recommendation_schema,
+	tool_reference_schema,
+} from './schema.js';
 
-export interface tool_recommendation {
-	tool_name: string;
-	confidence?: number;
-	rationale?: string;
-	priority?: number;
-	suggested_inputs?: Record<string, unknown>;
-	alternatives?: string[];
-}
+export type ToolReference = v.InferInput<
+	typeof tool_reference_schema
+>;
 
-export interface thought_input {
-	session_id?: string;
-	thought: string;
-	thought_number: number;
-	total_thoughts: number;
-	next_thought_needed: boolean;
-	is_revision?: boolean;
-	revises_thought?: number;
-	branch_from_thought?: number;
-	branch_id?: string;
-	needs_more_thoughts?: boolean;
-	available_tools?: tool_reference[];
-	recommended_tools?: tool_recommendation[];
-	remaining_steps?: string[];
-}
+export type ToolRecommendation = v.InferInput<
+	typeof tool_recommendation_schema
+>;
 
-export interface thought_record extends thought_input {
+export type ThoughtInput = v.InferInput<
+	typeof sequential_thinking_schema
+>;
+
+export type ThoughtRecord = ThoughtInput & {
 	session_id: string;
 	created_at: string;
-}
+};
 
-export interface validation_issue {
+export interface ValidationIssue {
 	field: string;
 	message: string;
 }
 
-export interface security_warning {
+export interface SecurityWarning {
 	field: string;
 	pattern: string;
 }
 
-export interface thought_result {
+export interface ThoughtResult {
 	session_id: string;
 	thought_number: number;
 	total_thoughts: number;
@@ -53,8 +40,8 @@ export interface thought_result {
 	needs_more_thoughts?: boolean;
 	branches: string[];
 	history_length: number;
-	invalid_recommendations?: validation_issue[];
-	security_warnings?: security_warning[];
-	recommended_tools?: tool_recommendation[];
+	invalid_recommendations?: ValidationIssue[];
+	security_warnings?: SecurityWarning[];
+	recommended_tools?: ToolRecommendation[];
 	remaining_steps?: string[];
 }
