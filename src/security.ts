@@ -32,6 +32,12 @@ const injection_patterns: Array<{ name: string; pattern: RegExp }> = [
 	},
 ];
 
+// Global copies so every occurrence is redacted; the shared patterns
+// stay non-global so `pattern.test` in scan_text remains stateless.
+const redaction_patterns = injection_patterns.map(
+	({ pattern }) => new RegExp(pattern.source, `${pattern.flags}g`),
+);
+
 const redaction = '[redacted: possible prompt-injection text]';
 
 export function scan_text(
@@ -47,8 +53,8 @@ export function scan_text(
 }
 
 export function sanitize_text(value: string): string {
-	return injection_patterns.reduce(
-		(sanitized, { pattern }) => sanitized.replace(pattern, redaction),
+	return redaction_patterns.reduce(
+		(sanitized, pattern) => sanitized.replace(pattern, redaction),
 		value,
 	);
 }
