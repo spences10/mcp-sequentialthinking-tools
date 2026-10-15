@@ -1,5 +1,12 @@
 # mcp-sequentialthinking-tools
 
+## 0.1.1
+
+### Patch Changes
+
+- ec4e562: Redact every occurrence of each prompt-injection pattern,
+  not just the first match, in stored thoughts.
+
 ## 0.1.0
 
 ### Minor Changes
