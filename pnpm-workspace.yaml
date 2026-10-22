@@ -1,7 +1,7 @@
 minimumReleaseAge: 2880
 
 overrides:
-  vite@*: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vite@*: npm:@voidzero-dev/vite-plus-core@1.3.0
   vitest@*: 5.0.3
 
 peerDependencyRules:
