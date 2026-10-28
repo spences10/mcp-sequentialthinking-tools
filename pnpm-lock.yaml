@@ -172,7 +172,7 @@ importers:
     dependencies:
       '@tmcp/adapter-valibot':
         specifier: ^0.1.6
-        version: 0.1.6(tmcp@1.20.0(typescript@7.0.2))(valibot@1.5.0(typescript@7.0.2))
+        version: 0.1.7(tmcp@1.20.0(typescript@7.0.2))(valibot@1.5.0(typescript@7.0.2))
       '@tmcp/transport-stdio':
         specifier: ^0.5.0
         version: 0.5.0(tmcp@1.20.0(typescript@7.0.2))
@@ -612,10 +612,10 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@tmcp/adapter-valibot@0.1.6':
-    resolution: {integrity: sha512-drirZeNinhYLiRSMksN+m//u0ImFxtGRk1Vp425Xp/7CbBXFQdjAG+f7grssyHAukbVTGzmWsMMP6ejrGVErUA==}
+  '@tmcp/adapter-valibot@0.1.7':
+    resolution: {integrity: sha512-MkY4yiyx6k/eeft7Ktnp3RSWrflwWF2PvhmVBSSSGjclJLdIOhhIY1wgp7LVKWwHKiYjOnaL8fQqx1kfdk4xkA==}
     peerDependencies:
-      tmcp: ^1.17.0
+      tmcp: ^1.17.0 || ^1.20.0-next.0
       valibot: ^1.1.0
 
   '@tmcp/session-manager@0.3.0':
@@ -1726,7 +1726,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 10.4.2
 
-  '@tmcp/adapter-valibot@0.1.6(tmcp@1.20.0(typescript@7.0.2))(valibot@1.5.0(typescript@7.0.2))':
+  '@tmcp/adapter-valibot@0.1.7(tmcp@1.20.0(typescript@7.0.2))(valibot@1.5.0(typescript@7.0.2))':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@valibot/to-json-schema': 1.7.1(valibot@1.5.0(typescript@7.0.2))
