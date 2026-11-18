@@ -175,7 +175,7 @@ importers:
         version: 0.1.7(tmcp@1.20.1(typescript@7.0.2))(valibot@1.5.0(typescript@7.0.2))
       '@tmcp/transport-stdio':
         specifier: ^0.5.0
-        version: 0.5.1(tmcp@1.20.1(typescript@7.0.2))
+        version: 0.5.2(tmcp@1.20.1(typescript@7.0.2))
       tmcp:
         specifier: ^1.20.0
         version: 1.20.1(typescript@7.0.2)
@@ -623,8 +623,8 @@ packages:
     peerDependencies:
       tmcp: ^1.20.0-next.0 || ^1.20.0
 
-  '@tmcp/transport-stdio@0.5.1':
-    resolution: {integrity: sha512-3TwvY7eKlyTZDWFba/9c68qfIjqQDJQdB05MF3gZ2wf1AbX39x+Ug0nrL6K4Iij4Otmu7Izb0v9Ab/hFl58sGA==}
+  '@tmcp/transport-stdio@0.5.2':
+    resolution: {integrity: sha512-UIN9RVBk4WHo2W+Pf2Pfo9FSGG+5Cd7fMVhY280d9ItfsHRWHTbcvPQNDHkXRn5WmKBC0SNkCnv/dr9RkLBKkg==}
     peerDependencies:
       tmcp: ^1.20.0-next.0 || ^1.20.0
 
@@ -1744,7 +1744,7 @@ snapshots:
       json-rpc-2.0: 1.7.1
       tmcp: 1.20.1(typescript@7.0.2)
 
-  '@tmcp/transport-stdio@0.5.1(tmcp@1.20.1(typescript@7.0.2))':
+  '@tmcp/transport-stdio@0.5.2(tmcp@1.20.1(typescript@7.0.2))':
     dependencies:
       '@tmcp/session-manager': 0.3.1(tmcp@1.20.1(typescript@7.0.2))
       tmcp: 1.20.1(typescript@7.0.2)
